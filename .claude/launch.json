@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "binbuddy",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4820"],
+      "port": 4820
+    }
+  ]
+}
