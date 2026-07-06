@@ -86,9 +86,12 @@
         ticking = false;
         const rect = compare.getBoundingClientRect();
         const vh = window.innerHeight;
-        // Sweep runs while the truck moves through the middle of the screen
-        const start = vh * 0.85;
-        const end = vh * 0.30;
+        // Wait until the whole truck is in view, pause a beat, then sweep.
+        // If the truck is taller than the screen, start once it fills the view.
+        const start = rect.height < vh * 0.9
+          ? vh - rect.height - vh * 0.05
+          : vh * 0.12;
+        const end = start - vh * 0.34;
         const p = Math.min(Math.max((start - rect.top) / (start - end), 0), 1);
         const pct = p * 100;
         // Clean image is revealed from the left, dirty remains on the right
