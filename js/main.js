@@ -71,17 +71,39 @@
     if (washJet) washJet.style.display = "none";
   }
 
-  /* ---------- Truck compare slider ---------- */
-  const range = $("#compareRange");
+  /* ---------- Truck compare: auto wash sweep on scroll ---------- */
+  const compare = $("#compare");
   const clip = $("#compareClip");
-  const handle = $("#compareHandle");
-  if (range && clip && handle) {
-    const setCompare = (v) => {
-      clip.style.clipPath = `inset(0 0 0 ${v}%)`;
-      handle.style.left = `${v}%`;
-    };
-    range.addEventListener("input", () => setCompare(range.value));
-    setCompare(range.value);
+  const sweep = $("#compareSweep");
+  const tagDirty = $("#compareTagDirty");
+  if (compare && clip && sweep) {
+    if (reduceMotion) {
+      clip.style.clipPath = "inset(0 0 0 50%)";
+      sweep.style.display = "none";
+    } else {
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const rect = compare.getBoundingClientRect();
+        const vh = window.innerHeight;
+        // Sweep runs while the truck moves through the middle of the screen
+        const start = vh * 0.85;
+        const end = vh * 0.30;
+        const p = Math.min(Math.max((start - rect.top) / (start - end), 0), 1);
+        const pct = p * 100;
+        // Clean image is revealed from the left, dirty remains on the right
+        clip.style.clipPath = `inset(0 ${(100 - pct).toFixed(2)}% 0 0)`;
+        sweep.style.left = `${pct.toFixed(2)}%`;
+        sweep.style.opacity = p > 0.01 && p < 0.99 ? "1" : "0";
+        if (tagDirty) tagDirty.style.opacity = p > 0.92 ? "0" : "1";
+      };
+      const req = () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      };
+      window.addEventListener("scroll", req, { passive: true });
+      window.addEventListener("resize", req, { passive: true });
+      update();
+    }
   }
 
   /* ---------- Quote form -> prefilled mailto ---------- */
